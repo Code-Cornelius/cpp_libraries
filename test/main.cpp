@@ -1,4 +1,4 @@
-#include "./src/tacc_rdtscp.h"
+#include "../src/tacc_rdtscp.h"
 
 int main(){
 
