@@ -1,6 +1,5 @@
-//
-// Created by nie_k on 24/10/2020.
-//
+//current threads's node/core
+// determine CPU and NUMA node on which the calling thread is running
 
 #include "tacc_rdtscp.h"
 
