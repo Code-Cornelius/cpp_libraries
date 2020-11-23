@@ -1,4 +1,4 @@
-//#include "tacc_rdtscp.h"
+#include "tacc_rdtscp.h"
 #include "timer.h"
 
 

@@ -2,11 +2,14 @@
 
 
 # Function that add an executable to the proejct and links the libraries.
-function(add_exe_linked_to_lib TEST_NAME TEST_FILE CLASS_SET)
+function(add_exe_linked_to_lib EXE_NAME EXE_FILE CLASS_SET)
     # add executable to the project using the specified source files
-    add_executable(${TEST_NAME} ${TEST_FILE})
+    add_executable(${EXE_NAME} ${EXE_FILE})
     # specify that we need the  library
-    target_link_libraries(${TEST_NAME} PUBLIC ${CLASS_SET})
+    #we iterate over the set
+    foreach (A_LIB IN LISTS ${CLASS_SET})
+        target_link_libraries(${EXE_NAME} PUBLIC ${A_LIB})
+    endforeach ()
 endfunction()
 
 # Function that creates a tests as an executable and adds it to the project.
@@ -26,6 +29,6 @@ set(CMAKE_CXX_STANDARD 11)
 project(my_cpp_libraries)
 
 add_subdirectory(src)
-#add_subdirectory(test)
-add_exe_linked_to_lib(MAIN test/main.cpp TIMER_LIB)
+add_subdirectory(test)
+#add_exe_linked_to_lib(MAIN test/main.cpp TIMER_LIB RDTSCP_LIB)
 

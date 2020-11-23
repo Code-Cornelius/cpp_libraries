@@ -8,6 +8,8 @@ class Timer {
 public:
     Timer();
 
+    void start();
+
     void stop();
 
     double duration() const;
