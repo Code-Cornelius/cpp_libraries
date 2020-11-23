@@ -1,6 +1,5 @@
 #include "timer.h"
 
-#include <stdexcept>
 #include <iostream>
 
 using namespace std;
@@ -16,11 +15,6 @@ void Timer::start() {
 
 void Timer::stop() {
     t_end_ = high_resolution_clock::now();
-#ifndef NDEBUG
-    if (!timer_stopped_) {
-        timer_stopped_ = true;
-    } else { throw logic_error("The Timer has already been stopped."); }
-#endif
 }
 
 double Timer::duration() const {
