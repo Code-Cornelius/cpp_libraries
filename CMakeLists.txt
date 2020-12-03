@@ -28,7 +28,9 @@ set(CMAKE_CXX_STANDARD 11)
 #STRUCTURE
 project(my_cpp_libraries)
 
-add_subdirectory(src)
-add_subdirectory(test)
-#add_exe_linked_to_lib(MAIN test/main.cpp TIMER_LIB RDTSCP_LIB)
+add_subdirectory(src) # libraries files
+add_subdirectory(test) # testing the correctness of the libraries
+add_subdirectory(examples_libraries) # some example of code
+
+
 
