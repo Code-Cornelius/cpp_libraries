@@ -3,110 +3,112 @@
 #include <cstdlib>
 #include <random>
 #include <vector>
-
+#include <fstream>
+#include <string>
+#include "main.hpp"
+#include <iomanip>
+#include <cassert>
 
 #include "matrix_multiplication.hpp"
-
-double benchmark(function_t f, matrix_t const &A, matrix_t const &B, matrix_t &C, std::size_t N) noexcept {
-    for (std::size_t i = 0; i < N * N; ++i) {
-        C[i] = 0;
-    }
-
-    auto start = std::chrono::high_resolution_clock::now();
-    f(A, B, C, N);
-    auto end = std::chrono::high_resolution_clock::now();
-
-    return std::chrono::duration<double>(end - start).count();
-}
-
-
-// print the matrix.
-void debug_print(std::vector<double> const &A) {
-    for (std::size_t i = 0; i < sqrt(A.size()); i++) {
-        std::cout << '[';
-        for (std::size_t j{0}; j < sqrt(A.size()); ++j) {
-            std::cout << A[i * sqrt(A.size()) + j] << ' ';
-        }
-        std::cout << ']' << std::endl;
-    }
-    std::cout << std::endl;
-}
-
 
 int main() {
     // Vector of functions to benchmark
     std::vector<function_t> mm_types({mmNULL, mm0, mm1, mm2,
                                       mm3, mm4,
                                       mm5, mm6,
-                                      mm7, mm8, mm9, mm10});
+                                      mm7});
     std::vector<std::string> mm_types_names({"Trivial", "Trivial but ok", "Trivial reorder", "Trivial reordered second",
                                              "Direct Block Column Major", "Optimised but C bad.",
                                              "Other order of Optimised with C bad", "Improved Optimized Version",
                                              "Parallelized best version", "ISPC", "Intrinsecs", "BLAS"});
 
-    // msudwoj: by convention, ALL_CAPS are used for preprocessor macros only
-    int const RUNS = 10;
-    std::vector<int> MATRIX_SIZES({128, 256, 512, 1024, 2048});
+
+    std::vector<float> c_SIZES_POWER({5,  9, 9.5});
+    int const c_RUNS = 1 * pow(2, c_SIZES_POWER.back() * 2);
+    // will be normalised later depending on the size, so the biggest matrix get only one run.
+
+    int c_NB_DIFF_SIZES{static_cast<int>(c_SIZES_POWER.size())};
+    std::vector<long int> c_MATRIX_SIZES(c_NB_DIFF_SIZES);
+    // creating sizes for matrices
+    for (int i = 0; i < c_SIZES_POWER.size(); i++) {
+        c_MATRIX_SIZES[i] = static_cast<long int>(pow(2, c_SIZES_POWER[i]));
+    }
+
     std::mt19937 gen;
     std::uniform_real_distribution<double> dis(0, 1);
 
-    // Matrix to store the time and the GFLOPs/sec
-    std::vector<matrix_t> times(mm_types.size(), matrix_t(MATRIX_SIZES.size()));
-    std::vector<matrix_t> gflops(mm_types.size(), matrix_t(MATRIX_SIZES.size()));
+    // file to write results to
+    std::ofstream benchmark_data;
+    benchmark_data << std::setprecision(5) << std::fixed; // fix style
+    std::string str_path = "C:\\Users\\nie_k\\Desktop\\travail\\comput_libraries\\my_lib_cpp\\examples_libraries\\matrix_multiplication\\";
+    benchmark_data.open(str_path + "benchmark_gemm.txt", std::ios::out);
 
-    for (std::size_t i = 0; i < mm_types.size(); ++i) {
+    if (!benchmark_data) { // file couldn't be opened
+        std::cerr << "Error: file could not be opened" << std::endl;
+        exit(1);
+    }
+
+    // writing the header: the size of matrices
+    for (int matrix_size: c_MATRIX_SIZES) { // iterate over sizes
+        benchmark_data << matrix_size << " ";
+    }
+    benchmark_data << std::endl;
+
+
+
+    // Matrix to store the time and the GFLOPs/sec
+    std::vector<matrix_t> times(mm_types.size(), matrix_t(c_NB_DIFF_SIZES));
+    std::vector<matrix_t> gflops(mm_types.size(), matrix_t(c_NB_DIFF_SIZES));
+
+    for (std::size_t i = 0; i < mm_types.size(); ++i) { // iterate over types of algorithms
         double time = 0;
+        benchmark_data << mm_types_names[i] << std::endl;
+
         std::cout << std::endl << mm_types_names[i] << '\n';
-        for (std::size_t j = 0; j < MATRIX_SIZES.size(); ++j) {
+        for (std::size_t j = 0; j < c_NB_DIFF_SIZES; ++j) { // iterate over sizes
 
             // creating the matrices for matrix multiplication
-            matrix_t A(MATRIX_SIZES[j] * MATRIX_SIZES[j]);
-            matrix_t B(MATRIX_SIZES[j] * MATRIX_SIZES[j]);
-            matrix_t C(MATRIX_SIZES[j] * MATRIX_SIZES[j]);
-            for (std::size_t i = 0; i < MATRIX_SIZES[j] * MATRIX_SIZES[j]; ++i) {
-                A[i] = dis(gen);
+            int nb_param_inside_matrix = c_MATRIX_SIZES[j] * c_MATRIX_SIZES[j];
+            matrix_t A(nb_param_inside_matrix);
+            matrix_t B(nb_param_inside_matrix);
+            matrix_t C(nb_param_inside_matrix);
+            for (std::size_t i = 0; i < nb_param_inside_matrix; ++i) {
+                A[i] = dis(gen); // random matrices
                 B[i] = dis(gen);
             }
 
-            for (std::size_t k = 0; k < RUNS; ++k) {
-                time += benchmark(mm_types[i], A, B, C, MATRIX_SIZES[j]);
+            int nb_runs_for_this_size{c_RUNS / nb_param_inside_matrix};
+            assert(nb_runs_for_this_size != 0);
+            for (std::size_t k = 0; k < nb_runs_for_this_size; ++k) {
+                time += benchmark(mm_types[i], A, B, C, c_MATRIX_SIZES[j]);
                 // the results between different mm_i functions are different because they assume different storage for the matrices.
+                // we assume the mm algos are correct.
             }
 
-            times[i][j] = time / RUNS;
-//            std::cout << MATRIX_SIZES[j] << ',' << time << '\n';
+            times[i][j] = time / nb_runs_for_this_size; // scaled time
 
-            double speed =
-                    2. * MATRIX_SIZES[j] * MATRIX_SIZES[j] * MATRIX_SIZES[j] / times[i][j] * 1.e-9;
+
+            value_t nb_Gbits_handled =
+                    2. * c_MATRIX_SIZES[j] * c_MATRIX_SIZES[j] * c_MATRIX_SIZES[j] * 1.e-9 * sizeof(value_t);
+            value_t speed = nb_Gbits_handled / times[i][j];
+
             gflops[i][j] = speed;
-            std::cout << MATRIX_SIZES[j] << ", " << "SPEED GFLOPs/sec: " << speed << '\n';
+            std::cout << c_MATRIX_SIZES[j] << ", " << "SPEED GFLOPs/sec: " << speed << '\n';
 
         }
+        // writing results
+        for (std::size_t j = 0; j < c_NB_DIFF_SIZES; ++j)
+            benchmark_data << times[i][j] << " ";
+        benchmark_data << std::endl;
+
+        for (std::size_t j = 0; j < c_NB_DIFF_SIZES; ++j)
+            benchmark_data << gflops[i][j] << " ";
+        benchmark_data << std::endl;
     }
 
-    // Write to file
-    // msudwoj: prefer ofstream im C++
-    // msudwoj: see https://en.cppreference.com/w/cpp/io/basic_ofstream
-    FILE *fp = nullptr;
-    fp = fopen("benchmark_matrix.txt", "w");
-    for (auto a_size:MATRIX_SIZES) {
-        fprintf(fp, "%i ", a_size);
-    }
-    fprintf(fp, "\n");
+// close results file
+    benchmark_data.close();
 
-    for (std::size_t i = 0; i < mm_types.size(); ++i) {
-        fprintf(fp, "%s\n", mm_types_names[i].c_str());
-        for (std::size_t j = 0; j < MATRIX_SIZES.size(); ++j) {
-            fprintf(fp, "%lf ", times[i][j]);
-        }
-        fprintf(fp, "\n");
-        for (std::size_t j = 0; j < MATRIX_SIZES.size();
-             ++j) {
-            fprintf(fp, "%lf ", gflops[i][j]);
-        }
-        fprintf(fp, "\n");
-    }
-    fclose(fp);
 
     return 0;
 }

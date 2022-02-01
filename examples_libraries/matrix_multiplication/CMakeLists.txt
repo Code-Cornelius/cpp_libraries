@@ -7,8 +7,8 @@ if (OPENMP_FOUND)
 endif()
 
 
-add_executable (main main.cpp
+add_executable (compar_mm_comput main.cpp
         mmNULL.cpp mm0.cpp mm1.cpp mm2.cpp
         mm3.cpp mm4.cpp mm5.cpp mm6.cpp
-        mm7.cpp mm8.cpp mm9.cpp mm10.cpp)
-target_link_libraries (main OpenMP::OpenMP_CXX)
+        mm7.cpp)
+target_link_libraries (compar_mm_comput OpenMP::OpenMP_CXX)
