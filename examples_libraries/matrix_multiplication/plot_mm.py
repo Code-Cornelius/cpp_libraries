@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm  # color map
 import numpy as np
 
-FILE_NAME = "benchmark_matrix.txt"
+FILE_NAME = "benchmark_gemm.txt"
 
 
 # import the file
@@ -44,7 +44,7 @@ def main():
     color_plot_blue = list(Blues(np.linspace(0.2, 1, nb_points - nb_points // 2)))  # color map for plot
     colors = color_plot_red + color_plot_blue
     for (name, function_info), c in zip(points.items(), colors):
-        plt.plot(sizes, function_info["times"], label=name, color=c)
+        plt.plot(sizes, function_info["times"], label=name, color=c, linewidth = 2)
 
     plt.yscale('log')
     plt.xscale('log', base=2)
@@ -56,7 +56,7 @@ def main():
 
     plt.figure()
     for (name, function_info), c in zip(points.items(), colors):
-        plt.plot(sizes, function_info["gflops"], label=name, color=c)
+        plt.plot(sizes, function_info["gflops"], label=name, color=c, linewidth=2)
 
     plt.yscale('log')
     plt.xscale('log', base=2)

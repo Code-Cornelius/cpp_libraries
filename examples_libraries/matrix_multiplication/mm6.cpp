@@ -1,5 +1,6 @@
 #include "matrix_multiplication.hpp"
 
+// BLOCK SIZE WILL BE A MULTIPLE OF 2. MAKE SURE IT IS CORRECT, SO YOU GO THROUGH THE WHOLE MATRIX.
 // super access version with everything optimised !
 void mm6(matrix_t const &A, matrix_t const &B, matrix_t &C, std::size_t N) noexcept {
     matrix_t sub_matrix(BLOCK_SIZE * BLOCK_SIZE );

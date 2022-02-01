@@ -1,4 +1,3 @@
-/// ISPC
 #include "matrix_multiplication.hpp"
 
 extern "C" {

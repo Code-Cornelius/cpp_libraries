@@ -14,16 +14,15 @@
 int main() {
     // Vector of functions to benchmark
     std::vector<function_t> mm_types({mmNULL, mm0, mm1, mm2,
-                                      mm3, mm4,
-                                      mm5, mm6,
-                                      mm7});
-    std::vector<std::string> mm_types_names({"Trivial", "Trivial but ok", "Trivial reorder", "Trivial reordered second",
-                                             "Direct Block Column Major", "Optimised but C bad.",
-                                             "Other order of Optimised with C bad", "Improved Optimized Version",
-                                             "Parallelized best version", "ISPC", "Intrinsecs", "BLAS"});
+                                      mm3, mm4, mm5, mm6, mm7});
+    std::vector<std::string> mm_types_names(
+            {"Baseline: Trivial", "Trivial reordered 1", "Trivial reordered 2", "Trivial reordered 3",
+             "Naive Block Column Major", "Block Column Major reordered 1",
+             "Block Column Major reordered 2", "Block Column Major reordered 3",
+             "OpenMP on best direct version",  "Intrinsics", "BLAS"});
 
 
-    std::vector<float> c_SIZES_POWER({5,  9, 9.5});
+    std::vector<float> c_SIZES_POWER({5, 6, 7, 8, 9, 10});
     int const c_RUNS = 1 * pow(2, c_SIZES_POWER.back() * 2);
     // will be normalised later depending on the size, so the biggest matrix get only one run.
 

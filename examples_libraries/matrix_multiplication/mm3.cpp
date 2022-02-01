@@ -2,7 +2,7 @@
 
 // Block column major multiplication
 void mm3(matrix_t const &A, matrix_t const &B, matrix_t &C, std::size_t N) noexcept {
-    //the logic being, first we move on blocks (i and j).
+    // the logic being, first we move on blocks (i and j).
     // Then we will move inside with iblock and jblock.
     // Finally, we add two intermediate steps with the k and kblock.
     // these steps are for the computations and follow the same rule as for i and j.
