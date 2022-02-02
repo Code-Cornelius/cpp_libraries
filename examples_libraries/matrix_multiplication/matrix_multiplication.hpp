@@ -5,7 +5,7 @@
 #include <omp.h>
 
 
-constexpr int BLOCK_SIZE = 8; // should be optimized for column major
+constexpr int BLOCK_SIZE = 32; // should be optimized for column major
 // also remember : With the column-major matrix, the
 //optimal block size is larger since the inner loops read the matrices contiguously.
 

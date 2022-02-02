@@ -8,6 +8,7 @@ void mm0(matrix_t const &A, matrix_t const &B, matrix_t &C, std::size_t N) noexc
         for (std::size_t j = 0; j < N; ++j) {
             sum = 0.0;
             for (std::size_t k = 0; k < N; ++k) {
+                // 2*N + 1 misses/elmnt, but easier to optimise
                 sum += A[i * N + k] * B[k * N + j];
             }
             C[i * N + j] = sum;

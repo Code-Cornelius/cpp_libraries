@@ -13,17 +13,22 @@
 
 int main() {
     // Vector of functions to benchmark
-    std::vector<function_t> mm_types({mmNULL, mm0, mm1, mm2,
-                                      mm3, mm4, mm5, mm6, mm7});
+    std::vector<function_t> mm_types({mmNULL, mm0,
+                                      mm1, mm2,
+                                      mm3, mm4,
+                                      mm5, mm6,
+                                      mm7});
     std::vector<std::string> mm_types_names(
-            {"Baseline: Trivial", "Trivial reordered 1", "Trivial reordered 2", "Trivial reordered 3",
-             "Naive Block Column Major", "Block Column Major reordered 1",
-             "Block Column Major reordered 2", "Block Column Major reordered 3",
-             "OpenMP on best direct version",  "Intrinsics", "BLAS"});
+            {"Baseline: Trivial", "Trivial buffered",
+             "Trivial reordered terrible", "Trivial reordered excellent",
+             "Naive Block", "Block reordered 1, improvable",
+             "Block reordered perfect accesses", "Block reordered 1, improvable but buffered",
+             "OpenMP on best direct version",
+             "Intrinsics", "BLAS"});
 
 
-    std::vector<float> c_SIZES_POWER({5, 6, 7, 8, 9, 10});
-    int const c_RUNS = 1 * pow(2, c_SIZES_POWER.back() * 2);
+    std::vector<float> c_SIZES_POWER({5, 6, 7, 8, 9, 10, 11});
+    int const c_RUNS =  static_cast<int>(pow(2, c_SIZES_POWER.back() * 2));
     // will be normalised later depending on the size, so the biggest matrix get only one run.
 
     int c_NB_DIFF_SIZES{static_cast<int>(c_SIZES_POWER.size())};
@@ -80,8 +85,7 @@ int main() {
             assert(nb_runs_for_this_size != 0);
             for (std::size_t k = 0; k < nb_runs_for_this_size; ++k) {
                 time += benchmark(mm_types[i], A, B, C, c_MATRIX_SIZES[j]);
-                // the results between different mm_i functions are different because they assume different storage for the matrices.
-                // we assume the mm algos are correct.
+                // the results between different mm_i functions are different because the starting matrices are random.
             }
 
             times[i][j] = time / nb_runs_for_this_size; // scaled time
